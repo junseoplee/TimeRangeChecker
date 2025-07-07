@@ -35,6 +35,9 @@ class TimeCheckServiceTest {
   @Mock
   private StatisticsService statisticsService;
 
+  @Mock
+  private CacheService cacheService;
+
   @InjectMocks
   private TimeCheckService timeCheckService;
 
@@ -51,6 +54,10 @@ class TimeCheckServiceTest {
     lenient().when(mockRequest.getRemoteAddr()).thenReturn("127.0.0.1");
     
     lenient().doNothing().when(statisticsService).updateStatistics(any(), any(), any(), any());
+    
+    // CacheService 모킹 설정 - 기본적으로 캐시 미스 상황으로 설정
+    lenient().when(cacheService.getCachedTimeCheckResult(any(), any(), any())).thenReturn(null);
+    lenient().doNothing().when(cacheService).cacheTimeCheckResult(any(), any(), any(), any());
   }
 
   @Nested

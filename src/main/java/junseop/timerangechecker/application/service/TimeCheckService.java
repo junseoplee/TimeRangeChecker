@@ -21,9 +21,10 @@ public class TimeCheckService {
 
   private final TimeCheckLogRepository timeCheckLogRepository;
   private final StatisticsService statisticsService;
+  private final CacheService cacheService;
 
   /**
-   * 時間チェックメインロジック
+   * 時間チェックメインロジック - キャッシュ機能統合
    * 特定時刻が指定された時間範囲内に含まれるかを判定
    */
   @Transactional
@@ -34,18 +35,28 @@ public class TimeCheckService {
     // 入力有効性検証
     validateTimeInput(request);
 
+    // キャッシュから結果確認
+    TimeCheckResponse cachedResponse = cacheService.getCachedTimeCheckResult(
+        request.getTargetHour(), request.getStartHour(), request.getEndHour());
+    
+    if (cachedResponse != null) {
+      log.debug("キャッシュから時間チェック結果を取得");
+      // キャッシュヒット時も統計更新とログ記録は実行
+      saveRequestLog(request, cachedResponse.getIsIncluded(), httpRequest);
+      statisticsService.updateStatistics(request.getStartHour(), request.getEndHour(), 
+                                         cachedResponse.getIsIncluded(), httpRequest);
+      return cachedResponse;
+    }
+
+    // キャッシュミス時 - 새로운 계算実行
+    log.debug("キャッシュミス - 新しい時間チェック計算を実行");
+    
     // 時間範囲タイプ判別
     TimeRangeType rangeType = determineRangeType(request.getStartHour(), request.getEndHour());
     
     // 含有判定
     boolean isIncluded = isTimeIncluded(request.getTargetHour(), request.getStartHour(), 
                                         request.getEndHour(), rangeType);
-
-    // 要求ログ保存
-    saveRequestLog(request, isIncluded, httpRequest);
-
-    // 統計更新
-    statisticsService.updateStatistics(request.getStartHour(), request.getEndHour(), isIncluded, httpRequest);
 
     // 応答生成
     TimeCheckResponse response = TimeCheckResponse.of(
@@ -55,6 +66,16 @@ public class TimeCheckService {
         isIncluded,
         rangeType.getValue()
     );
+
+    // 結果をキャッシュに保存
+    cacheService.cacheTimeCheckResult(request.getTargetHour(), request.getStartHour(), 
+                                      request.getEndHour(), response);
+
+    // 要求ログ保存
+    saveRequestLog(request, isIncluded, httpRequest);
+
+    // 統計更新
+    statisticsService.updateStatistics(request.getStartHour(), request.getEndHour(), isIncluded, httpRequest);
 
     log.info("時間チェック結果: isIncluded={}, rangeType={}", isIncluded, rangeType.getValue());
     return response;
