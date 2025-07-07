@@ -31,12 +31,13 @@ public class StatisticsService {
   private final TimeRangeStatsRepository timeRangeStatsRepository;
   private final DailyStatsRepository dailyStatsRepository;
   private final TimeCheckLogRepository timeCheckLogRepository;
+  private final CacheService cacheService;
   
   // 今日処理されたセッションIDを一時保存（実際の運用時にはRedis等を使用）
   private final Set<String> todayProcessedSessions = new HashSet<>();
 
   /**
-   * 統計情報更新
+   * 統計情報更新 - キャッシュ無効化統合
    */
   @Transactional
   public void updateStatistics(Integer startHour, Integer endHour, Boolean isIncluded, HttpServletRequest request) {
@@ -50,6 +51,10 @@ public class StatisticsService {
 
       // 日間統計更新
       updateDailyStats(today, rangeKey, sessionId);
+
+      // 統計データ更新時キャッシュ無効化
+      cacheService.invalidateStatsCache();
+      log.debug("統計更新完了 - キャッシュ無効化実行");
 
     } catch (Exception e) {
       log.error("統計更新失敗", e);
@@ -98,11 +103,21 @@ public class StatisticsService {
   }
 
   /**
-   * 全体統計照会
+   * 全体統計照会 - キャッシュ機能統合
    */
   @Transactional(readOnly = true)
   public StatsResponse getOverallStats() {
     try {
+      // キャッシュから統計データ確認
+      StatsResponse cachedStats = cacheService.getCachedStatsData("overall", StatsResponse.class);
+      
+      if (cachedStats != null) {
+        log.debug("キャッシュから全体統計データを取得");
+        return cachedStats;
+      }
+
+      log.debug("統計データキャッシュミス - 新しい統計計算を実行");
+
       // 期間別総要求数とセッション数計算（最近30日）
       LocalDate endDate = LocalDate.now();
       LocalDate startDate = endDate.minusDays(30);
@@ -116,12 +131,17 @@ public class StatisticsService {
       // 日別統計照会（最近7日）
       List<DailyStatsDto> dailyStats = getDailyStats(endDate.minusDays(7), endDate);
 
-      return StatsResponse.builder()
-                          .totalRequests(totalRequests)
-                          .uniqueSessions(uniqueSessions)
-                          .popularRanges(popularRanges)
-                          .dailyStats(dailyStats)
-                          .build();
+      StatsResponse response = StatsResponse.builder()
+                                           .totalRequests(totalRequests)
+                                           .uniqueSessions(uniqueSessions)
+                                           .popularRanges(popularRanges)
+                                           .dailyStats(dailyStats)
+                                           .build();
+
+      // 計算結果をキャッシュに保存
+      cacheService.cacheStatsData("overall", response);
+
+      return response;
 
     } catch (Exception e) {
       log.error("統計照会失敗", e);
