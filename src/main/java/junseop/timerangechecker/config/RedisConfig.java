@@ -1,5 +1,7 @@
 package junseop.timerangechecker.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -38,11 +40,23 @@ public class RedisConfig {
   }
 
   /**
+   * LocalDateTime対応のObjectMapper設定
+   */
+  @Bean
+  public ObjectMapper redisObjectMapper() {
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JavaTimeModule());
+    // LocalDateTimeをISO文字列として表示
+    mapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    return mapper;
+  }
+
+  /**
    * RedisTemplateの設定
    * 文字列キーとJSON値のシリアライゼーション
    */
   @Bean
-  public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+  public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory, ObjectMapper redisObjectMapper) {
     RedisTemplate<String, Object> template = new RedisTemplate<>();
     template.setConnectionFactory(connectionFactory);
     
@@ -50,9 +64,10 @@ public class RedisConfig {
     template.setKeySerializer(new StringRedisSerializer());
     template.setHashKeySerializer(new StringRedisSerializer());
     
-    // 値のシリアライゼーション設定（JSON形式）
-    template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-    template.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
+    // 値のシリアライゼーション設定（JSON形式、LocalDateTime対応）
+    GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
+    template.setValueSerializer(jsonSerializer);
+    template.setHashValueSerializer(jsonSerializer);
     
     template.afterPropertiesSet();
     return template;
@@ -63,13 +78,15 @@ public class RedisConfig {
    * 統一されたキャッシュ管理と有効期限設定
    */
   @Bean
-  public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory) {
+  public RedisCacheManager cacheManager(RedisConnectionFactory connectionFactory, ObjectMapper redisObjectMapper) {
+    GenericJackson2JsonRedisSerializer jsonSerializer = new GenericJackson2JsonRedisSerializer(redisObjectMapper);
+    
     RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
         .entryTtl(Duration.ofHours(1))  // デフォルト1時間の有効期限
         .serializeKeysWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
             .fromSerializer(new StringRedisSerializer()))
         .serializeValuesWith(org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair
-            .fromSerializer(new GenericJackson2JsonRedisSerializer()));
+            .fromSerializer(jsonSerializer));
 
     return RedisCacheManager.builder(connectionFactory)
         .cacheDefaults(config)
