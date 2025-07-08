@@ -8,7 +8,7 @@ on:
     branches:
       - backend
       - refactor/*
-  workflow_dispatch:  # 수동 실행 허용
+  workflow_dispatch:  # 手動実行を許可
 
 jobs:
   develop:
