@@ -42,3 +42,7 @@ application-local.yml
 
 IMPLEMENTATION_GUIDE.md
 Redis_IMPLEMENT_RESULT.md
+
+# Markdown documentation files
+*.md
+!README.md
