@@ -107,7 +107,7 @@ class ApiService {
 
   // 統計情報取得API呼び出し
   async getStatistics(): Promise<StatsResponse> {
-    return this.request<StatsResponse>('/api/v1/statistics')
+    return this.request<StatsResponse>('/api/v1/statistics/overall')
   }
 }
 
