@@ -31,7 +31,7 @@ import { RouterLink, RouterView } from 'vue-router'
 
     <footer class="app-footer">
       <div class="footer-content">
-        <p>&copy; 2024 TimeRangeChecker. 高性能な時間範囲チェックアプリケーション</p>
+        <p>&copy; 2025 TimeRangeChecker</p>
       </div>
     </footer>
   </div>
