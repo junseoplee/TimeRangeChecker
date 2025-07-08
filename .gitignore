@@ -45,4 +45,3 @@ Redis_IMPLEMENT_RESULT.md
 
 # Markdown documentation files
 *.md
-!README.md
