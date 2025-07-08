@@ -226,8 +226,8 @@
                 <span class="tech-desc">高性能キャッシュ</span>
               </div>
               <div class="tech-item">
-                <span class="tech-name">H2 Database</span>
-                <span class="tech-desc">組み込みデータベース</span>
+                <span class="tech-name">Amazon RDS MySQL</span>
+                <span class="tech-desc">クラウドデータベース</span>
               </div>
             </div>
           </div>
