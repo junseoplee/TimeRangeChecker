@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * 統計応答 DTO
- * 전체 통계 정보를 포함하는 응답 객체
  */
 @Getter
 @NoArgsConstructor
@@ -17,22 +16,22 @@ import lombok.NoArgsConstructor;
 public class StatsResponse {
 
   /**
-   * 총 리퀘스트 수
+   * 総リクエスト数
    */
   private Long totalRequests;
 
   /**
-   * 유니크 세션 수
+   * ユニークセッション数
    */
   private Long uniqueSessions;
 
   /**
-   * 인기 시간 범위 목록
+   * 人気時間範囲リスト
    */
   private List<RangeStatsDto> popularRanges;
 
   /**
-   * 일별 통계 목록
+   * 日別統計リスト
    */
   private List<DailyStatsDto> dailyStats;
 } 

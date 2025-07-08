@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * 時間範囲統計 DTO
- * 특정 시간 범위에 대한 요청 수, 매치 수, 매치율 등의 통계 정보
  */
 @Getter
 @NoArgsConstructor

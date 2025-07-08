@@ -3,9 +3,12 @@ on:
   push:
     branches:
       - backend
+      - refactor/*
   pull_request:
     branches:
       - backend
+      - refactor/*
+  workflow_dispatch:  # 수동 실행 허용
 
 jobs:
   develop:

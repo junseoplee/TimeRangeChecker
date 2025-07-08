@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/statistics")
+@RequestMapping("/statistics")
 @RequiredArgsConstructor
 @Slf4j
 public class StatisticsController {
 
   private final StatisticsService statisticsService;
 
-  @GetMapping("/overall")
+  @GetMapping
   @ResponseStatus(HttpStatus.OK)
   public ApiResponse<StatsResponse> getOverallStatistics() {
     log.info("全体統計照会要求");

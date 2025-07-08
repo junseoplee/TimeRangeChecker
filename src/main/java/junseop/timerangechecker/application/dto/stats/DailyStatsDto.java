@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 /**
  * 日別統計 DTO
- * 특정 날짜의 요청 수, 세션 수, 인기 시간 범위 등의 통계 정보
  */
 @Getter
 @NoArgsConstructor
