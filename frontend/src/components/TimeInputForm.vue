@@ -209,7 +209,7 @@ const handleClearClick = (event: MouseEvent) => {
 
 <style scoped>
 .time-input-form {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
   background: #ffffff;
