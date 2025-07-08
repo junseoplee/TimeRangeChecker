@@ -2,34 +2,83 @@
   <div class="time-input-form">
     <h2 class="form-title">時間範囲チェック</h2>
     
-    <form @submit.prevent="handleSubmit" class="form-container">
-      <div class="input-group">
-        <label for="startTime" class="input-label">開始時間</label>
-        <input
-          id="startTime"
-          v-model="timeCheckStore.startTime"
-          type="time"
-          class="time-input"
-          :disabled="timeCheckStore.isLoading"
-          placeholder="09:00"
-        />
-      </div>
+    <!-- 入力方式選択タブ -->
+    <div class="input-mode-tabs">
+      <button 
+        @click="inputMode = 'traditional'"
+        class="tab-button"
+        :class="{ active: inputMode === 'traditional' }"
+      >
+        📝 従来入力
+      </button>
+      <button 
+        @click="inputMode = 'clock'"
+        class="tab-button"
+        :class="{ active: inputMode === 'clock' }"
+      >
+        🕐 時計選択
+      </button>
+    </div>
 
-      <div class="input-group">
-        <label for="endTime" class="input-label">終了時間</label>
-        <input
-          id="endTime"
-          v-model="timeCheckStore.endTime"
-          type="time"
-          class="time-input"
-          :disabled="timeCheckStore.isLoading"
-          placeholder="18:00"
-        />
-      </div>
+    <!-- 従来の入力方式 -->
+    <div v-if="inputMode === 'traditional'" class="traditional-input">
+      <form @submit.prevent="handleSubmit" class="form-container">
+        <div class="input-group">
+          <label for="startTime" class="input-label">開始時間</label>
+          <input
+            id="startTime"
+            v-model="timeCheckStore.startTime"
+            type="time"
+            class="time-input"
+            :disabled="timeCheckStore.isLoading"
+            placeholder="09:00"
+          />
+        </div>
 
-      <div class="button-group">
+        <div class="input-group">
+          <label for="endTime" class="input-label">終了時間</label>
+          <input
+            id="endTime"
+            v-model="timeCheckStore.endTime"
+            type="time"
+            class="time-input"
+            :disabled="timeCheckStore.isLoading"
+            placeholder="18:00"
+          />
+        </div>
+
+        <div class="button-group">
+          <button
+            type="submit"
+            class="check-button"
+            :disabled="!timeCheckStore.hasValidInput || timeCheckStore.isLoading"
+          >
+            <span v-if="timeCheckStore.isLoading" class="loading-spinner"></span>
+            {{ timeCheckStore.isLoading ? 'チェック中...' : '時間をチェック' }}
+          </button>
+          
+          <button
+            type="button"
+            class="clear-button"
+            @click="timeCheckStore.clearForm"
+            :disabled="timeCheckStore.isLoading"
+          >
+            クリア
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- 時計式入力方式 -->
+    <div v-else-if="inputMode === 'clock'" class="clock-input">
+      <ClockTimePicker 
+        v-model:startTime="timeCheckStore.startTime"
+        v-model:endTime="timeCheckStore.endTime"
+      />
+      
+      <div class="clock-actions">
         <button
-          type="submit"
+          @click="handleSubmit"
           class="check-button"
           :disabled="!timeCheckStore.hasValidInput || timeCheckStore.isLoading"
         >
@@ -38,15 +87,14 @@
         </button>
         
         <button
-          type="button"
-          class="clear-button"
           @click="timeCheckStore.clearForm"
+          class="clear-button"
           :disabled="timeCheckStore.isLoading"
         >
           クリア
         </button>
       </div>
-    </form>
+    </div>
 
     <!-- エラーメッセージ表示 -->
     <div v-if="timeCheckStore.error" class="error-message">
@@ -57,9 +105,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useTimeCheckStore } from '@/stores/timeCheck'
+import ClockTimePicker from './ClockTimePicker.vue'
 
 const timeCheckStore = useTimeCheckStore()
+const inputMode = ref<'traditional' | 'clock'>('clock') // デフォルトは時計モード
 
 const handleSubmit = async () => {
   await timeCheckStore.checkTimeRange()
@@ -68,7 +119,7 @@ const handleSubmit = async () => {
 
 <style scoped>
 .time-input-form {
-  max-width: 500px;
+  max-width: 600px;
   margin: 0 auto;
   padding: 2rem;
   background: #ffffff;
@@ -82,6 +133,50 @@ const handleSubmit = async () => {
   margin-bottom: 2rem;
   font-size: 1.8rem;
   font-weight: 600;
+}
+
+/* 入力方式選択タブ */
+.input-mode-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  background: #f1f5f9;
+  padding: 0.25rem;
+  border-radius: 12px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.tab-button:hover {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.tab-button.active {
+  background: #ffffff;
+  color: #1e293b;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* 従来入力方式 */
+.traditional-input {
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .form-container {
@@ -123,6 +218,19 @@ const handleSubmit = async () => {
   opacity: 0.7;
 }
 
+/* 時計式入力方式 */
+.clock-input {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.clock-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  justify-content: center;
+}
+
+/* 共通ボタンスタイル */
 .button-group {
   display: flex;
   gap: 1rem;
@@ -144,6 +252,7 @@ const handleSubmit = async () => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-width: 140px;
 }
 
 .check-button:hover:not(:disabled) {
@@ -170,6 +279,7 @@ const handleSubmit = async () => {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 80px;
 }
 
 .clear-button:hover:not(:disabled) {
@@ -215,6 +325,17 @@ const handleSubmit = async () => {
   flex-shrink: 0;
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* レスポンシブデザイン */
 @media (max-width: 640px) {
   .time-input-form {
@@ -222,7 +343,17 @@ const handleSubmit = async () => {
     padding: 1.5rem;
   }
   
-  .button-group {
+  .input-mode-tabs {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .tab-button {
+    padding: 0.6rem 1rem;
+  }
+  
+  .button-group,
+  .clock-actions {
     flex-direction: column;
   }
   
