@@ -80,7 +80,7 @@ class ApiService {
       endHour: this.timeStringToHour(request.endTime)
     }
 
-    const backendResponse = await this.request<BackendTimeCheckResponse>('/time-checks', {
+    const backendResponse = await this.request<BackendTimeCheckResponse>('/api/v1/time-check', {
       method: 'POST',
       body: JSON.stringify(backendRequest),
     })
@@ -110,7 +110,7 @@ class ApiService {
 
   // 統計情報取得API呼び出し
   async getStatistics(): Promise<StatsResponse> {
-    return this.request<StatsResponse>('/statistics')
+    return this.request<StatsResponse>('/api/v1/statistics/overall')
   }
 }
 
