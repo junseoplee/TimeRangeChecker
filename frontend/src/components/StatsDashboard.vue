@@ -95,11 +95,7 @@
           <div class="chart-legend">
             <span class="legend-item">
               <span class="legend-color success"></span>
-              範囲内
-            </span>
-            <span class="legend-item">
-              <span class="legend-color error"></span>
-              範囲外
+              日別リクエスト数
             </span>
           </div>
         </div>
@@ -118,17 +114,12 @@
                 <div class="chart-bars-wrapper">
                   <div 
                     class="chart-bar success-bar"
-                    :style="{ height: getBarHeight(day.inRangeCount) + '%' }"
-                    :title="`範囲内: ${day.inRangeCount}回`"
-                  ></div>
-                  <div 
-                    class="chart-bar error-bar"
-                    :style="{ height: getBarHeight(day.outOfRangeCount) + '%' }"
-                    :title="`範囲外: ${day.outOfRangeCount}回`"
+                    :style="{ height: getBarHeight(day.totalRequests) + '%' }"
+                    :title="`総リクエスト: ${day.totalRequests}回`"
                   ></div>
                 </div>
                 <div class="chart-day-label">{{ getDayLabel(day.date) }}</div>
-                <div class="chart-day-count">{{ day.totalChecks }}</div>
+                <div class="chart-day-count">{{ day.totalRequests }}</div>
               </div>
             </div>
           </div>
