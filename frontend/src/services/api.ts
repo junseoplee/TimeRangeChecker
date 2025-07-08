@@ -5,17 +5,17 @@ import type {
   ErrorResponse 
 } from '@/types/api'
 
-// 환경변수からAPIベースURLを取得
+// 環境変数からAPIベースURLを取得
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'
 
-// 백엔드 API 요청 형식
+// バックエンドAPI要求形式
 interface BackendTimeCheckRequest {
   targetHour: number
   startHour: number
   endHour: number
 }
 
-// 백엔드 실제 응답 형식 (success 대신 code 사용)
+// バックエンド実際応答形式 (successの代わりにcode使用)
 interface BackendTimeCheckResponse {
   code: number
   message: string
@@ -61,18 +61,18 @@ class ApiService {
     }
   }
 
-  // 시간 문자열을 정수로 변환 (예: "09:30" -> 9)
+  // 時間文字列を整数に変換 (例: "09:30" -> 9)
   private timeStringToHour(timeString: string): number {
     const [hour] = timeString.split(':')
     return parseInt(hour, 10)
   }
 
-  // 현재 시간 가져오기
+  // 現在時間取得
   private getCurrentHour(): number {
     return new Date().getHours()
   }
 
-  // 시간 체크API呼び出し
+  // 時間チェックAPI呼び出し
   async checkTimeRange(request: TimeCheckRequest): Promise<TimeCheckResponse> {
     const backendRequest: BackendTimeCheckRequest = {
       targetHour: this.getCurrentHour(),
@@ -85,14 +85,14 @@ class ApiService {
       body: JSON.stringify(backendRequest),
     })
 
-    // 백엔드 응답을 프론트엔드 형식으로 변환
+    // バックエンド応答をフロントエンド形式に変換
     const currentTime = new Date().toLocaleTimeString('ja-JP', { 
       hour: '2-digit', 
       minute: '2-digit', 
       second: '2-digit' 
     })
 
-    // code가 200이면 성공으로 처리
+    // codeが200なら成功として処理
     const isSuccess = backendResponse.code === 200
 
     return {

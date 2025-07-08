@@ -31,3 +31,5 @@ coverage
 
 # Development documentation
 FRONTEND_DEVELOPMENT_GUIDE.md
+*.md
+!README.md

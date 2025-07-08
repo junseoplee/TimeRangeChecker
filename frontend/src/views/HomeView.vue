@@ -6,7 +6,7 @@ import TimeCheckResult from '@/components/TimeCheckResult.vue'
 <template>
   <div class="home-view">
     <main class="main-content">
-      <!-- 메인 시간 체크 섹션 -->
+      <!-- メイン時間チェックセクション -->
       <section class="time-check-section">
         <TimeInputForm />
         <TimeCheckResult />
