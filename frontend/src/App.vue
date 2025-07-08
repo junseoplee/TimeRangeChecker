@@ -1,85 +1,190 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div id="app">
+    <header class="app-header">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="app-title">
+            <span class="title-icon">⏰</span>
+            TimeRangeChecker
+          </h1>
+          <p class="app-subtitle">現在時刻が指定範囲内にあるかチェック</p>
+        </div>
+        
+        <nav class="nav-menu">
+          <RouterLink to="/" class="nav-link" active-class="nav-link-active">
+            ホーム
+          </RouterLink>
+          <RouterLink to="/about" class="nav-link" active-class="nav-link-active">
+            About
+          </RouterLink>
+        </nav>
+      </div>
+    </header>
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
+    <main class="app-main">
+      <RouterView />
+    </main>
 
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+    <footer class="app-footer">
+      <div class="footer-content">
+        <p>&copy; 2025 TimeRangeChecker</p>
+      </div>
+    </footer>
+  </div>
 </template>
 
+<style>
+/* グローバルスタイル */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+  line-height: 1.6;
+  color: #2c3e50;
+  background-color: #f8fafc;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+</style>
+
 <style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+.app-header {
+  background: linear-gradient(135deg, #1e3a8a, #3730a3);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  z-index: 10;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
+.header-left {
+  flex: 1;
+}
+
+.app-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.title-icon {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.app-subtitle {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  font-weight: 400;
+  margin: 0;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nav-link:hover {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link-active {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.2);
+  font-weight: 600;
+}
+
+.app-main {
+  flex: 1;
+}
+
+.app-footer {
+  background: #1f2937;
+  color: #9ca3af;
+  padding: 1.5rem 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
   text-align: center;
-  margin-top: 2rem;
+  padding: 0 2rem;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+.footer-content p {
+  font-size: 0.9rem;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
   }
-
-  .logo {
-    margin: 0 2rem 0 0;
+  
+  .app-title {
+    font-size: 1.6rem;
   }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
+  
+  .nav-menu {
+    gap: 1rem;
+    justify-content: center;
   }
+  
+  .nav-link {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
 
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 1.4rem;
+  }
+  
+  .title-icon {
+    font-size: 1.6rem;
+  }
+  
+  .app-subtitle {
+    font-size: 0.85rem;
   }
 }
 </style>
