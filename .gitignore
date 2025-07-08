@@ -39,6 +39,13 @@ out/
 ### yml file ###
 application-dev.yml
 application-local.yml
+application-test.yml
+**/application-dev.yml
+**/application-local.yml  
+**/application-test.yml
+
+application-*.yml
+**/application-*.yml
 
 IMPLEMENTATION_GUIDE.md
 Redis_IMPLEMENT_RESULT.md
