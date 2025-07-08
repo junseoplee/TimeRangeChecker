@@ -15,9 +15,9 @@ interface BackendTimeCheckRequest {
   endHour: number
 }
 
-// 백엔드 API 응답 형식
+// 백엔드 실제 응답 형식 (success 대신 code 사용)
 interface BackendTimeCheckResponse {
-  success: boolean
+  code: number
   message: string
   data?: {
     targetHour: number
@@ -92,8 +92,11 @@ class ApiService {
       second: '2-digit' 
     })
 
+    // code가 200이면 성공으로 처리
+    const isSuccess = backendResponse.code === 200
+
     return {
-      success: backendResponse.success,
+      success: isSuccess,
       message: backendResponse.message,
       data: backendResponse.data ? {
         isInRange: backendResponse.data.isIncluded,
