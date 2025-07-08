@@ -95,11 +95,7 @@
           <div class="chart-legend">
             <span class="legend-item">
               <span class="legend-color success"></span>
-              範囲内
-            </span>
-            <span class="legend-item">
-              <span class="legend-color error"></span>
-              範囲外
+              日別リクエスト数
             </span>
           </div>
         </div>
@@ -118,17 +114,12 @@
                 <div class="chart-bars-wrapper">
                   <div 
                     class="chart-bar success-bar"
-                    :style="{ height: getBarHeight(day.inRangeCount) + '%' }"
-                    :title="`範囲内: ${day.inRangeCount}回`"
-                  ></div>
-                  <div 
-                    class="chart-bar error-bar"
-                    :style="{ height: getBarHeight(day.outOfRangeCount) + '%' }"
-                    :title="`範囲外: ${day.outOfRangeCount}回`"
+                    :style="{ height: getBarHeight(day.totalRequests) + '%' }"
+                    :title="`総リクエスト: ${day.totalRequests}回`"
                   ></div>
                 </div>
                 <div class="chart-day-label">{{ getDayLabel(day.date) }}</div>
-                <div class="chart-day-count">{{ day.totalChecks }}</div>
+                <div class="chart-day-count">{{ day.totalRequests }}</div>
               </div>
             </div>
           </div>
@@ -189,7 +180,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { apiService } from '@/services/api'
-import type { StatsResponse, RangeStatsDto, DailyStatsDto } from '@/types/api'
+import type { StatsResponse, PopularRangeDto, DailyStatsDto } from '@/types/api'
 
 // リアクティブデータ
 const isLoading = ref(false)
@@ -235,9 +226,7 @@ const maxUsageCount = computed(() => {
 })
 
 const maxDailyCount = computed(() => {
-  return Math.max(...dailyStats.value.map(day => 
-    Math.max(day.inRangeCount, day.outOfRangeCount)
-  ), 1)
+  return Math.max(...dailyStats.value.map(day => day.totalRequests), 1)
 })
 
 // API から統計データを取得
@@ -251,24 +240,24 @@ const fetchStatistics = async (): Promise<boolean> => {
 
     if (response.success && response.data) {
       // 実際のデータを使用
-      totalChecks.value = response.data.totalChecks || 0
+      totalChecks.value = response.data.totalRequests || 0
       
       // 日別統計から今日のデータ計算
       const today = new Date().toISOString().split('T')[0]
       const todayData = response.data.dailyStats?.find(d => d.date === today)
-      todayChecks.value = todayData?.totalChecks || 0
+      todayChecks.value = todayData?.totalRequests || 0
       
       // 実際の日別統計設定
       dailyStats.value = response.data.dailyStats || []
       
-      // 実際の範囲統計から人気時間帯生成
-      if (response.data.rangeStats && response.data.rangeStats.length > 0) {
-        popularRanges.value = response.data.rangeStats.map((stat, index) => ({
+      // 실제の 人気時間帯統計から人気時間帯生成
+      if (response.data.popularRanges && response.data.popularRanges.length > 0) {
+        popularRanges.value = response.data.popularRanges.map((stat, index) => ({
           id: index + 1,
-          startHour: stat.rangeType === 'OVERNIGHT' ? 22 : 9,
-          endHour: stat.rangeType === 'OVERNIGHT' ? 6 : 17,
-          type: stat.rangeType,
-          count: stat.totalCount
+          startHour: parseInt(stat.rangeKey.split('-')[0]),
+          endHour: parseInt(stat.rangeKey.split('-')[1]),
+          type: stat.rangeKey.includes('22-') || stat.rangeKey.includes('-06') ? 'OVERNIGHT' : 'NORMAL',
+          count: stat.requestCount
         })).sort((a, b) => b.count - a.count).slice(0, 5) // 上位5つのみ
       } else {
         popularRanges.value = []

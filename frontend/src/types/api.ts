@@ -16,31 +16,31 @@ export interface TimeCheckResponse {
   }
 }
 
-// 統計API用の型定義
+// 統計API用の型定義 - バックエンドレスポンス構造に合わせて修正
 export interface StatsResponse {
   success: boolean
   message: string
   data?: {
-    totalChecks: number
-    rangeStats: RangeStatsDto[]
+    totalRequests: number
+    uniqueSessions: number
+    popularRanges: PopularRangeDto[]
     dailyStats: DailyStatsDto[]
   }
 }
 
-export interface RangeStatsDto {
-  rangeType: 'NORMAL' | 'OVERNIGHT'
-  inRangeCount: number
-  outOfRangeCount: number
-  totalCount: number
-  inRangePercentage: number
+export interface PopularRangeDto {
+  rangeKey: string
+  requestCount: number
+  matchCount: number
+  matchRate: number
+  lastAccessed: string
 }
 
 export interface DailyStatsDto {
   date: string
-  totalChecks: number
-  inRangeCount: number
-  outOfRangeCount: number
-  inRangePercentage: number
+  totalRequests: number
+  uniqueSessions: number
+  popularRange: string
 }
 
 // エラーレスポンス用の型定義
