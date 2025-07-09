@@ -250,7 +250,7 @@ const fetchStatistics = async (): Promise<boolean> => {
       // 実際の日別統計設定
       dailyStats.value = response.data.dailyStats || []
       
-      // 실제の 人気時間帯統計から人気時間帯生成
+      // 実際の 人気時間帯統計から人気時間帯生成
       if (response.data.popularRanges && response.data.popularRanges.length > 0) {
         popularRanges.value = response.data.popularRanges.map((stat, index) => ({
           id: index + 1,
@@ -263,8 +263,8 @@ const fetchStatistics = async (): Promise<boolean> => {
         popularRanges.value = []
       }
       
-      // 実際のユニークセッション数（総チェック数の70%程度で推定）
-      uniqueSessions.value = Math.floor(totalChecks.value * 0.7)
+      // 実際のユニークセッション数を使用
+      uniqueSessions.value = response.data.uniqueSessions || 0
       
       // 成功率計算（API応答時間に応じて）
       successRate.value = averageResponseTime.value < 1000 ? 98.5 : 95.0

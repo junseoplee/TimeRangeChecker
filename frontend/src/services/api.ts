@@ -29,6 +29,29 @@ interface BackendTimeCheckResponse {
   }
 }
 
+// バックエンド統計応答形式
+interface BackendStatsResponse {
+  code: number
+  message: string
+  data?: {
+    totalRequests: number
+    uniqueSessions: number
+    popularRanges: Array<{
+      rangeKey: string
+      requestCount: number
+      matchCount: number
+      matchRate: number
+      lastAccessed: string
+    }>
+    dailyStats: Array<{
+      date: string
+      totalRequests: number
+      uniqueSessions: number
+      popularRange: string
+    }>
+  }
+}
+
 class ApiService {
   private async request<T>(
     endpoint: string, 
@@ -110,7 +133,21 @@ class ApiService {
 
   // 統計情報取得API呼び出し
   async getStatistics(): Promise<StatsResponse> {
-    return this.request<StatsResponse>('/api/v1/statistics/overall')
+    const backendResponse = await this.request<BackendStatsResponse>('/api/v1/statistics/overall')
+    
+    // codeが200なら成功として処理
+    const isSuccess = backendResponse.code === 200
+    
+    return {
+      success: isSuccess,
+      message: backendResponse.message,
+      data: backendResponse.data ? {
+        totalRequests: backendResponse.data.totalRequests,
+        uniqueSessions: backendResponse.data.uniqueSessions,
+        popularRanges: backendResponse.data.popularRanges,
+        dailyStats: backendResponse.data.dailyStats
+      } : undefined
+    }
   }
 }
 
